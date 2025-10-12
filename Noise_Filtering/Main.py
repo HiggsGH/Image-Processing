@@ -161,23 +161,80 @@ for name, filtered_image in filters_sp:
 print(f"\nЛучший фильтр для шума соль-перец: {best_filter_sp}")
 print(f"MSE: {best_mse_sp:.2f}, SSIM: {best_ssim_sp:.4f}")
 
+# Тестирование фильтров для постоянного шума
+print("ФИЛЬТРАЦИЯ ПОСТОЯННОГО ШУМА:")
+print("=" * 50)
+
+# Медианный фильтр
+image_constant_noise_median3 = cv2.medianBlur(image_constant_noise, 3)
+image_constant_noise_median5 = cv2.medianBlur(image_constant_noise, 5)
+
+# Фильтр Гаусса
+image_constant_noise_gauss3 = cv2.GaussianBlur(image_constant_noise, (3, 3), 0)
+image_constant_noise_gauss5 = cv2.GaussianBlur(image_constant_noise, (5, 5), 0)
+image_constant_noise_gauss7 = cv2.GaussianBlur(image_constant_noise, (7, 7), 0)
+
+# Билатеральный фильтр
+image_constant_noise_bilat1 = cv2.bilateralFilter(image_constant_noise, 9, 50, 50)
+image_constant_noise_bilat2 = cv2.bilateralFilter(image_constant_noise, 9, 75, 75)
+image_constant_noise_bilat3 = cv2.bilateralFilter(image_constant_noise, 9, 100, 100)
+
+# Фильтр нелокальных средних
+image_constant_noise_nlm1 = cv2.fastNlMeansDenoising(image_constant_noise, h=10)
+image_constant_noise_nlm2 = cv2.fastNlMeansDenoising(image_constant_noise, h=20)
+image_constant_noise_nlm3 = cv2.fastNlMeansDenoising(image_constant_noise, h=30)
+
+# Сравнение результатов для постоянного шума
+filters_constant_noise = [
+    ('Медианный 3x3', image_constant_noise_median3),
+    ('Медианный 5x5', image_constant_noise_median5),
+    ('Гаусс 3x3', image_constant_noise_gauss3),
+    ('Гаусс 5x5', image_constant_noise_gauss5),
+    ('Гаусс 7x7', image_constant_noise_gauss7),
+    ('Билатеральный 50', image_constant_noise_bilat1),
+    ('Билатеральный 75', image_constant_noise_bilat2),
+    ('Билатеральный 100', image_constant_noise_bilat3),
+    ('NLM h=10', image_constant_noise_nlm1),
+    ('NLM h=20', image_constant_noise_nlm2),
+    ('NLM h=30', image_constant_noise_nlm3)
+]
+
+best_mse_constant_noise = float('inf')
+best_ssim_constant_noise = -1
+best_filter_constant_noise = ""
+
+print("Результаты для постоянного шума:")
+for name, filtered_image in filters_constant_noise:
+    mse = mean_squared_error(image_gray, filtered_image)
+    ssim = structural_similarity(image_gray, filtered_image)
+    
+    print(f"{name}: MSE={mse:.2f}, SSIM={ssim:.4f}")
+    
+    if mse < best_mse_constant_noise and ssim > best_ssim_constant_noise:
+        best_mse_constant_noise = mse
+        best_ssim_constant_noise = ssim
+        best_filter_constant_noise = name
+
+print(f"\nЛучший фильтр для постоянного шума: {best_filter_constant_noise}")
+print(f"MSE: {best_mse_constant_noise:.2f}, SSIM: {best_ssim_constant_noise:.4f}")
+
 # Визуализация лучших результатов
-plt.figure(figsize=(15, 10))
+plt.figure(figsize=(10, 8))
 
 # Лучшие результаты для гауссова шума
 best_gauss_image = next(img for name, img in filters_gauss if name == best_filter_gauss)
 
-plt.subplot(2, 3, 1)
+plt.subplot(3, 3, 1)
 plt.imshow(image_gray, cmap='gray')
 plt.title('Исходное')
 plt.axis('off')
 
-plt.subplot(2, 3, 2)
+plt.subplot(3, 3, 2)
 plt.imshow(image_noise_gauss, cmap='gray')
 plt.title('Гауссов шум')
 plt.axis('off')
 
-plt.subplot(2, 3, 3)
+plt.subplot(3, 3, 3)
 plt.imshow(best_gauss_image, cmap='gray')
 plt.title(f'Лучший: {best_filter_gauss}')
 plt.axis('off')
@@ -185,19 +242,37 @@ plt.axis('off')
 # Лучшие результаты для шума соль-перец
 best_sp_image = next(img for name, img in filters_sp if name == best_filter_sp)
 
-plt.subplot(2, 3, 4)
+plt.subplot(3, 3, 4)
 plt.imshow(image_gray, cmap='gray')
 plt.title('Исходное')
 plt.axis('off')
 
-plt.subplot(2, 3, 5)
+plt.subplot(3, 3, 5)
 plt.imshow(image_sp, cmap='gray')
 plt.title('Соль-перец')
 plt.axis('off')
 
-plt.subplot(2, 3, 6)
+plt.subplot(3, 3, 6)
 plt.imshow(best_sp_image, cmap='gray')
 plt.title(f'Лучший: {best_filter_sp}')
+plt.axis('off')
+
+# Лучшие результаты для постоянного шума
+best_constant_noise_image = next(img for name, img in filters_constant_noise if name == best_filter_constant_noise)
+
+plt.subplot(3, 3, 7)
+plt.imshow(image_gray, cmap='gray')
+plt.title('Исходное')
+plt.axis('off')
+
+plt.subplot(3, 3, 8)
+plt.imshow(image_constant_noise, cmap='gray')
+plt.title('Постоянный шум')
+plt.axis('off')
+
+plt.subplot(3, 3, 9)
+plt.imshow(best_constant_noise_image, cmap='gray')
+plt.title(f'Лучший: {best_filter_constant_noise}')
 plt.axis('off')
 
 plt.tight_layout()
@@ -208,3 +283,4 @@ print("\nИТОГОВЫЕ РЕЗУЛЬТАТЫ:")
 print("=" * 50)
 print(f"Для гауссова шума лучший: {best_filter_gauss}")
 print(f"Для шума соль-перец лучший: {best_filter_sp}")
+print(f"Для постоянного шума лучший: {best_filter_constant_noise}")
