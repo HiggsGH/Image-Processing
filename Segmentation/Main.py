@@ -65,6 +65,21 @@ center = np.uint8(center)
 res = center[label.flatten()]
 res2 = res.reshape((image_gray.shape))
 
+def homo_median(img, mask, point, T):
+    # Безопасная версия с обработкой ошибок
+    try:
+        masked_pixels = img[mask > 0]
+        if len(masked_pixels) == 0:
+            return False
+        
+        median_val = np.median(masked_pixels)
+        return abs(median_val - img[point]) <= T
+    except Exception as e:
+        print(f"Ошибка в homo_median: {e}")
+        return False
+
+new_mask = region_growing(image_gray, seed_point, homo_median, 1, 20)   
+
 plt.figure(figsize=(15, 5))
 
 plt.subplot(1, 3, 1)
@@ -73,13 +88,13 @@ plt.title('Исходное изображение')
 plt.axis('off')
 
 plt.subplot(1, 3, 2)
-plt.imshow(mask, cmap='gray')
-plt.title('Разрастание R=1, T=20')
+plt.imshow(res2, cmap='gray')
+plt.title('K-means K=3')
 plt.axis('off')
 
 plt.subplot(1, 3, 3)
-plt.imshow(res2, cmap='gray')
-plt.title('K-means K=3')
+plt.imshow(new_mask, cmap='gray')
+plt.title('homo-median')
 plt.axis('off')
 
 plt.tight_layout()
