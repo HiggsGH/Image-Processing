@@ -66,7 +66,6 @@ res = center[label.flatten()]
 res2 = res.reshape((image_gray.shape))
 
 def homo_median(img, mask, point, T):
-    # Безопасная версия с обработкой ошибок
     try:
         masked_pixels = img[mask > 0]
         if len(masked_pixels) == 0:
