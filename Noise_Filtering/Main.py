@@ -30,8 +30,15 @@ image_sp[zeros_pixel] = 0
 image_sp[ones_pixel] = 255
 
 # Постоянный шум
-constant_noise = np.full(image_gray.shape, 30, dtype=np.uint8)
-image_constant_noise = cv2.add(image_gray, constant_noise)
+a = 0
+b = 150
+
+height, width = image_gray.shape
+noise = np.random.uniform(a, b, (height, width))
+
+image_constant_noise = image_gray.astype(np.float32) + noise
+image_constant_noise = np.clip(image_constant_noise, 0, 255)
+image_constant_noise = image_constant_noise.astype(np.uint8)
 
 plt.figure(figsize=(15, 10))
 
