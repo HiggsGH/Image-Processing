@@ -108,8 +108,8 @@ plt.title('Изображение в оттенках серого')
 plt.axis('off')
 plt.show()
 
-blur = cv2.GaussianBlur(img_gray, (5, 5), 0)
-ret, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU) 
+blur = cv2.GaussianBlur(img_gray, (21, 21), 0)
+ret, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
 dist = cv2.distanceTransform(thresh, cv2.DIST_L2, 5)
 ret, sure_fg = cv2.threshold(dist, 0.1 * dist.max(), 255, cv2.THRESH_BINARY)
