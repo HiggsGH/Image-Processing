@@ -20,7 +20,7 @@ plt.axis('off')
 
 plt.subplot(1, 2, 2)
 plt.imshow(magnitude_spectrum, cmap='gray')
-plt.title('Амплитудный спектр')
+plt.title('Magnitude Spectrum')
 plt.axis('off')
 plt.show()
 
@@ -75,11 +75,9 @@ centerX, centerY = int(img.shape[0] / 2), int(img.shape[1] / 2)
 radius = 8
 
 for coord in noise_coords:
-    cv.circle(mask_noise, (coord[1], coord[0]), radius, (0, 0), -1)
-
-cv.circle(mask_noise, (centerY, centerX), radius + 12, (0, 0), -1)
-inner_radius = max(radius - 12, 1)  # минимум 1 пиксель
-cv.circle(mask_noise, (centerY, centerX), inner_radius, (1, 1), -1)
+    dist_to_center = np.sqrt((coord[0] - centerX)**2 + (coord[1] - centerY)**2)
+    if dist_to_center > 20:
+        cv.circle(mask_noise, (coord[1], coord[0]), radius, (0, 0), -1)
 
 # Визуализация маски
 plt.imshow(mask_noise[:,:,0], cmap='gray')
